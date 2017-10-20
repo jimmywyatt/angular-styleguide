@@ -1,23 +1,6 @@
 # Angular 1 Style Guide
-
-## Angular Team Endorsed
-Special thanks to Igor Minar, lead on the Angular team, for reviewing, contributing feedback, and entrusting me to shepherd this guide.
-
-## Purpose
-*Opinionated Angular style guide for teams by [@john_papa](//twitter.com/john_papa)*
-
-If you are looking for an opinionated style guide for syntax, conventions, and structuring Angular applications, then step right in. These styles are based on my development experience with [Angular](//angularjs.org), presentations, [Pluralsight training courses](http://app.pluralsight.com/author/john-papa) and working in teams.
-
-The purpose of this style guide is to provide guidance on building Angular applications by showing the conventions I use and, more importantly, why I choose them.
-
->If you like this guide, check out my [Angular Patterns: Clean Code](http://jpapa.me/ngclean) course at Pluralsight which is a companion to this guide.
-
-  [![Angular Patterns: Clean Code](https://raw.githubusercontent.com/johnpapa/angular-styleguide/master/a1/assets/ng-clean-code-banner.png)](http://jpapa.me/ngclean)
-
-## Community Awesomeness and Credit
-Never work in a vacuum. I find that the Angular community is an incredible group who are passionate about sharing experiences. As such, Angular expert Todd Motto and I have collaborated on many styles and conventions. We agree on most, and some we diverge. I encourage you to check out [Todd's guidelines](https://github.com/toddmotto/angular-styleguide) to get a sense for his approach and how it compares.
-
-Many of my styles have been from the many pair programming sessions [Ward Bell](https://twitter.com/wardbell) and I have had. My friend Ward has certainly helped influence the ultimate evolution of this guide.
+## Credit
+Copied from the great guide from John Papa and altered for my use.
 
 ## See the Styles in a Sample App
 While this guide explains the *what*, *why* and *how*, I find it helpful to see them in practice. This guide is accompanied by a sample application that follows these styles and patterns. You can find the [sample application (named modular) here](https://github.com/johnpapa/ng-demos) in the `modular` folder. Feel free to grab it, clone it, or fork it. [Instructions on running it are in its readme](https://github.com/johnpapa/ng-demos/tree/master/modular).
@@ -320,120 +303,6 @@ While this guide explains the *what*, *why* and *how*, I find it helpful to see 
 **[Back to top](#table-of-contents)**
 
 ## Controllers
-
-### controllerAs View Syntax
-###### [Style [Y030](#style-y030)]
-
-  - Use the [`controllerAs`](http://www.johnpapa.net/do-you-like-your-angular-controllers-with-or-without-sugar/) syntax over the `classic controller with $scope` syntax.
-
-  *Why?*: Controllers are constructed, "newed" up, and provide a single new instance, and the `controllerAs` syntax is closer to that of a JavaScript constructor than the `classic $scope syntax`.
-
-  *Why?*: It promotes the use of binding to a "dotted" object in the View (e.g. `customer.name` instead of `name`), which is more contextual, easier to read, and avoids any reference issues that may occur without "dotting".
-
-  *Why?*: Helps avoid using `$parent` calls in Views with nested controllers.
-
-  ```html
-  <!-- avoid -->
-  <div ng-controller="CustomerController">
-      {{ name }}
-  </div>
-  ```
-
-  ```html
-  <!-- recommended -->
-  <div ng-controller="CustomerController as customer">
-      {{ customer.name }}
-  </div>
-  ```
-
-### controllerAs Controller Syntax
-###### [Style [Y031](#style-y031)]
-
-  - Use the `controllerAs` syntax over the `classic controller with $scope` syntax.
-
-  - The `controllerAs` syntax uses `this` inside controllers which gets bound to `$scope`
-
-  *Why?*: `controllerAs` is syntactic sugar over `$scope`. You can still bind to the View and still access `$scope` methods.
-
-  *Why?*: Helps avoid the temptation of using `$scope` methods inside a controller when it may otherwise be better to avoid them or move the method to a factory, and reference them from the controller. Consider using `$scope` in a controller only when needed. For example when publishing and subscribing events using [`$emit`](https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$emit), [`$broadcast`](https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$broadcast), or [`$on`](https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$on).
-
-  ```javascript
-  /* avoid */
-  function CustomerController($scope) {
-      $scope.name = {};
-      $scope.sendMessage = function() { };
-  }
-  ```
-
-  ```javascript
-  /* recommended - but see next section */
-  function CustomerController() {
-      this.name = {};
-      this.sendMessage = function() { };
-  }
-  ```
-
-### controllerAs with vm
-###### [Style [Y032](#style-y032)]
-
-  - Use a capture variable for `this` when using the `controllerAs` syntax. Choose a consistent variable name such as `vm`, which stands for ViewModel.
-
-  *Why?*: The `this` keyword is contextual and when used within a function inside a controller may change its context. Capturing the context of `this` avoids encountering this problem.
-
-  ```javascript
-  /* avoid */
-  function CustomerController() {
-      this.name = {};
-      this.sendMessage = function() { };
-  }
-  ```
-
-  ```javascript
-  /* recommended */
-  function CustomerController() {
-      var vm = this;
-      vm.name = {};
-      vm.sendMessage = function() { };
-  }
-  ```
-
-  Note: You can avoid any [jshint](http://jshint.com/) warnings by placing the comment above the line of code. However it is not needed when the function is named using UpperCasing, as this convention means it is a constructor function, which is what a controller is in Angular.
-
-  ```javascript
-  /* jshint validthis: true */
-  var vm = this;
-  ```
-
-  Note: When creating watches in a controller using `controller as`, you can watch the `vm.*` member using the following syntax. (Create watches with caution as they add more load to the digest cycle.)
-
-  ```html
-  <input ng-model="vm.title"/>
-  ```
-
-  ```javascript
-  function SomeController($scope, $log) {
-      var vm = this;
-      vm.title = 'Some Title';
-
-      $scope.$watch('vm.title', function(current, original) {
-          $log.info('vm.title was %s', original);
-          $log.info('vm.title is now %s', current);
-      });
-  }
-  ```
-
-  Note: When working with larger codebases, using a more descriptive name can help ease cognitive overhead & searchability. Avoid overly verbose names that are cumbersome to type.
-
-  ```html
-  <!-- avoid -->
-  <input ng-model="customerProductItemVm.title">
-  ```
-
-  ```html
-  <!-- recommended -->
-  <input ng-model="productVm.title">
-  ```
-
 ### Bindable Members Up Top
 ###### [Style [Y033](#style-y033)]
 
@@ -488,9 +357,7 @@ While this guide explains the *what*, *why* and *how*, I find it helpful to see 
       }
   }
   ```
-
-![Controller Using "Above the Fold"](https://raw.githubusercontent.com/johnpapa/angular-styleguide/master/a1/assets/above-the-fold-1.png)
-
+  
   Note: If the function is a 1 liner consider keeping it right up top, as long as readability is not affected.
 
   ```javascript
@@ -1232,100 +1099,7 @@ Note: There are many naming options for directives, especially since they can be
       }
   }
   ```
-
-### Directives and ControllerAs
-###### [Style [Y075](#style-y075)]
-
-  - Use `controllerAs` syntax with a directive to be consistent with using `controller as` with view and controller pairings.
-
-    *Why?*: It makes sense and it's not difficult.
-
-    Note: The directive below demonstrates some of the ways you can use scope inside of link and directive controllers, using controllerAs. I in-lined the template just to keep it all in one place.
-
-    Note: Regarding dependency injection, see [Manually Identify Dependencies](#manual-annotating-for-dependency-injection).
-
-    Note: Note that the directive's controller is outside the directive's closure. This style eliminates issues where the injection gets created as unreachable code after a `return`.
-    
-    Note: Life-style hooks were introduced in Angular 1.5. Initialization logic that relies on bindings being present should be put in the controller's $onInit() method, which is guarranteed to always be called after the bindings have been assigned.
-
-  ```html
-  <div my-example max="77"></div>
-  ```
-
-  ```javascript
-  angular
-      .module('app')
-      .directive('myExample', myExample);
-
-  function myExample() {
-      var directive = {
-          restrict: 'EA',
-          templateUrl: 'app/feature/example.directive.html',
-          scope: {
-              max: '='
-          },
-          link: linkFunc,
-          controller: ExampleController,
-          // note: This would be 'ExampleController' (the exported controller name, as string)
-          // if referring to a defined controller in its separate file.
-          controllerAs: 'vm',
-          bindToController: true // because the scope is isolated
-      };
-
-      return directive;
-
-      function linkFunc(scope, el, attr, ctrl) {
-          console.log('LINK: scope.min = %s *** should be undefined', scope.min);
-          console.log('LINK: scope.max = %s *** should be undefined', scope.max);
-          console.log('LINK: scope.vm.min = %s', scope.vm.min);
-          console.log('LINK: scope.vm.max = %s', scope.vm.max);
-      }
-  }
-
-  ExampleController.$inject = ['$scope'];
-
-  function ExampleController($scope) {
-      // Injecting $scope just for comparison
-      var vm = this;
-      vm.min = 3;
-      vm.$onInit = onInit;
-      
-      //////////
-      
-      console.log('CTRL: $scope.vm.min = %s', $scope.vm.min);
-      console.log('CTRL: $scope.vm.max = %s', $scope.vm.max); // undefined in Angular 1.5+
-      console.log('CTRL: vm.min = %s', vm.min);
-      console.log('CTRL: vm.max = %s', vm.max); // undefined in Angular 1.5+
-      
-      // Angular 1.5+ does not bind attributes until calling $onInit();
-      function onInit() {
-          console.log('CTRL-onInit: $scope.vm.min = %s', $scope.vm.min);
-          console.log('CTRL-onInit: $scope.vm.max = %s', $scope.vm.max);
-          console.log('CTRL-onInit: vm.min = %s', vm.min);
-          console.log('CTRL-onInit: vm.max = %s', vm.max);
-      }
-  }
-  ```
-
-  ```html
-  <!-- example.directive.html -->
-  <div>hello world</div>
-  <div>max={{vm.max}}<input ng-model="vm.max"/></div>
-  <div>min={{vm.min}}<input ng-model="vm.min"/></div>
-  ```
-
-Note: You can also name the controller when you inject it into the link function and access directive attributes as properties of the controller.
-
-  ```javascript
-  // Alternative to above example
-  function linkFunc(scope, el, attr, vm) {
-      console.log('LINK: scope.min = %s *** should be undefined', scope.min);
-      console.log('LINK: scope.max = %s *** should be undefined', scope.max);
-      console.log('LINK: vm.min = %s', vm.min);
-      console.log('LINK: vm.max = %s', vm.max);
-  }
-  ```
-
+  
 ###### [Style [Y076](#style-y076)]
 
   - Use `bindToController = true` when using `controller as` syntax with a directive when you want to bind the outer scope to the directive's controller's scope.
